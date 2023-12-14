@@ -1,0 +1,74 @@
+<div style="position: absolute; top: 100px; left: 50%; transform: translate(-50%); width: 100%;">
+    <h1 class="text-center"> Main Category</h1>
+    <div class="container">
+        <div>
+            <a href="/add"><button class="btn btn-sm btn-primary">Add + </button></a>
+            <hr />
+        </div>
+        <table class="table mx-2">
+            <thead>
+                <tr>
+                    <th scope="col">Id</th>
+                    <th scope="col">Product Title</th>
+                    <th scope="col">Product description</th>
+                    <th scope="col">Image</th>
+                    <th scope="col">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if(!product){ %>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <% }else{ %>
+                        <% product.forEach((val, index)=>{ %>
+                            <tr>
+                                <td>
+                                    <%= index+1 %>
+                                </td>
+                                <td>
+                                    <%= val.title %>
+                                </td>
+                                <td>
+                                    <%= val.desc %>
+                                </td>
+                                <td>
+                                    <img src="/<%=val.image%>" width="50px"/>
+                                </td>
+                                <td>
+                                    <% if (productWithNestedData && productWithNestedData.length > 0) { %>
+                                        <% if (productWithNestedData.includes(val.id)) { %>
+                                            <!-- Render view button -->
+                                            <a href="/view/<%=val._id%>">
+                                                <button class="btn btn-sm btn-primary mx-1">View</button>
+                                            </a>
+                                        <% } else { %>
+                                            <!-- Render + button -->
+                                            <a href="/add-category/<%=val._id%>">
+                                                <button class="btn btn-sm btn-primary">+</button>
+                                            </a>
+                                        <% } %>
+                                    <% } else { %>
+                                        <!-- Render + button -->
+                                        <a href="/add-category/<%=val._id%>">
+                                            <button class="btn btn-sm btn-primary">+</button>
+                                        </a>
+                                    <% } %>
+                                    <a href="/edit/<%=val._id%>">
+                                        <button class="btn btn-sm btn-secondary">Edit</button>
+                                    </a>
+                                    <a href="/delete/<%=val._id%>">
+                                        <button class="btn btn-sm btn-danger mx-1"> Delete</button>
+                                    </a>
+                                </td>
+                            </tr>
+                        <%})%>
+                    <%}%>
+            </tbody>
+        </table>
+    </div>
+</div>

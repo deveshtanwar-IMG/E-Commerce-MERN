@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        Add User
+    </title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+        <link rel="apple-touch-icon" href="/app-assets/images/ico/apple-icon-120.png">
+        <link rel="shortcut icon" type="image/x-icon" href="/app-assets/images/ico/favicon.ico">
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;1,400;1,500;1,600"
+          rel="stylesheet">
+      
+        <!-- BEGIN: Vendor CSS-->
+        <link rel="stylesheet" type="text/css" href="/app-assets/vendors/css/vendors.min.css">
+        <link rel="stylesheet" type="text/css" href="/app-assets/vendors/css/charts/apexcharts.css">
+        <link rel="stylesheet" type="text/css" href="/app-assets/vendors/css/extensions/toastr.min.css">
+        <!-- END: Vendor CSS-->
+      
+        <!-- BEGIN: Theme CSS-->
+        <link rel="stylesheet" type="text/css" href="/app-assets/css/bootstrap-extended.css">
+        <link rel="stylesheet" type="text/css" href="/app-assets/css/colors.css">
+        <link rel="stylesheet" type="text/css" href="/app-assets/css/components.css">
+        <link rel="stylesheet" type="text/css" href="/app-assets/css/themes/dark-layout.css">
+        <link rel="stylesheet" type="text/css" href="/app-assets/css/themes/bordered-layout.css">
+        <link rel="stylesheet" type="text/css" href="/app-assets/css/themes/semi-dark-layout.css">
+      
+        <!-- BEGIN: Page CSS-->
+        <link rel="stylesheet" type="text/css" href="/app-assets/css/core/menu/menu-types/vertical-menu.css">
+        <link rel="stylesheet" type="text/css" href="/app-assets/css/pages/dashboard-ecommerce.css">
+        <link rel="stylesheet" type="text/css" href="/app-assets/css/plugins/charts/chart-apex.css">
+        <link rel="stylesheet" type="text/css" href="/app-assets/css/plugins/extensions/ext-component-toastr.css">
+        <!-- END: Page CSS-->
+      
+        <!-- BEGIN: Custom CSS-->
+        <link rel="stylesheet" type="text/css" href="/assets/css/style.css">
+        <!-- END: Custom CSS-->
+      </head>
+      
+      <body class="vertical-layout vertical-menu-modern  navbar-floating footer-static  " data-open="click"
+        data-menu="vertical-menu-modern" data-col="">
+    <!-- <div>
+        <a href="/"><button class="btn btn btn-secondary" style="margin-top: 5px; margin-left: 5px;">Go
+                Back</button></a>
+    </div> -->
+              <!-- BEGIN: Header-->
+  <%- include('partials/header.ejs') %>
+  <!-- BEGIN: Main Menu-->
+  <%- include('partials/sidebar.ejs') %>
+  <div style="position: absolute; top: 100px; left: 50%; transform: translate(-50%); width: 100%;">
+    <h1 class="text-center my-3"> Edit PRODUCT </h1>
+    <div class="container">
+        <form class="mx-auto" style="max-width: 500px" id="product-form" enctype="multipart/form-data" method="post" action='/edit-product/<%=data._id%>'>
+            <div class="mb-3">
+                <label for="category" class="form-label">Category</label>
+                <input type="text" class="form-control" id="category"
+                value="<%= category %>" disabled/>
+                <!-- <span style="color: red;" id="name-error"></span> -->
+            </div>
+            <div class="mb-3">
+                <label for="sub-category" class="form-label">Sub category</label>
+                <input type="text" class="form-control" id="sub-category" value="<%= subCategory %>" disabled/>
+                <!-- <span style="color: red;" id="name-error"></span> -->
+            </div>
+            <div class="mb-3">
+                <label for="title" class="form-label">Product Title</label>
+                <input type="text" class="form-control" id="title" name="title" required
+                    value="<%= data.title%>" />
+                <!-- <span style="color: red;" id="name-error"></span> -->
+            </div>
+            <div class="mb-3">
+                <label for="desc" class="form-label">Product Description</label>
+                <textarea class="form-control" id="desc" name="desc" required  rows="1"><%= data.desc%></textarea>
+                <!-- <p style="color: red;" id="email-error"></p> -->
+            </div>
+            <div class="mb-3">
+                <label for="image" class="form-label">Select Image</label>
+                <input type="file" class="form-control" id="image" name="image" onchange='previewHandler(event)'>
+            </div>
+            <div style="width: 300px;">
+                <button type="submit" class="btn btn-primary" id="add">Submit</button>
+                <img src="/<%= data.image %>" id="preview" style="width: 50px;" class="ms-2" />
+            </div>
+        </form>
+    </div>
+  </div>
+
+    <script>
+
+        // const validateForm = (e) => {
+
+        //   const submitButton = document.getElementById('add');
+
+        //   let nameValid = false;
+        //   let emailValid = false;
+        //   let phoneValid = false;
+
+
+        //   if (e.target.name == 'name') {
+        //     var regex = /\b([A-ZÀ-ÿ][-,a-z. ']+[ ]*)+/gm
+        //     var text = e.target.value
+        //     const result = regex.test(text)
+        //     if (!result) {
+        //       document.getElementById('name-error').innerHTML = '* 1st letter capital and alphabet only * Atleast 2 character';
+        //     }
+        //     else {
+        //       document.getElementById('name-error').innerHTML = '';
+        //       nameValid = true;
+        //     }
+        //   }
+
+        //   if (e.target.name == 'email') {
+        //     var regex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g
+        //     var text = e.target.value
+        //     const result = regex.test(text)
+        //     if (!result) {
+        //       document.getElementById('email-error').innerHTML = 'Enter valid email - example@gmail.com'
+        //     }
+        //     else {
+        //       document.getElementById('email-error').innerHTML = '';
+        //       emailValid = true;
+        //     }
+        //   }
+
+        //   if (e.target.name == 'phone') {
+        //     var regex = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/g
+        //     var text = e.target.value
+        //     const result = regex.test(text)
+        //     if (!result) {
+        //       document.getElementById('phone-error').innerHTML = 'Enter 10 digit Mobile No. with country code'
+        //     }
+        //     else {
+        //       document.getElementById('phone-error').innerHTML = '';
+        //       phoneValid = true;
+        //     }
+        //   }
+
+        //   if (!nameValid && !emailValid && !phoneValid) {
+        //     submitButton.setAttribute('disabled', 'true')
+        //   }
+        //   else {
+        //     submitButton.removeAttribute('disabled')
+        //   }
+
+        // }
+        const previewHandler = (e) => {
+            var input = event.target;
+            var preview = document.getElementById('preview');
+
+            var reader = new FileReader();
+            reader.onload = function () {
+                preview.src = reader.result;
+                preview.style.display = "inline-block";
+            };
+            reader.readAsDataURL(input.files[0]);// important line
+        }
+
+    </script>
+
+<div class="sidenav-overlay"></div>
+<div class="drag-target"></div>
+
+<button class="btn btn-primary btn-icon scroll-top" type="button"><i data-feather="arrow-up"></i></button>
+<!-- END: Footer-->
+
+
+<!-- BEGIN: Vendor JS-->
+<script src="/app-assets/vendors/js/vendors.min.js"></script>
+<!-- BEGIN Vendor JS-->
+
+<!-- BEGIN: Page Vendor JS-->
+<script src="/app-assets/vendors/js/charts/apexcharts.min.js"></script>
+<script src="/app-assets/vendors/js/extensions/toastr.min.js"></script>
+<!-- END: Page Vendor JS-->
+
+<!-- BEGIN: Theme JS-->
+<script src="/app-assets/js/core/app-menu.js"></script>
+<script src="/app-assets/js/core/app.js"></script>
+<!-- END: Theme JS-->
+
+<!-- BEGIN: Page JS-->
+<script src="/app-assets/js/scripts/pages/dashboard-ecommerce.js"></script>
+<!-- END: Page JS-->
+
+<script>
+
+  $(window).on('load', function () {
+    if (feather) {
+      feather.replace({
+        width: 14,
+        height: 14
+      });
+    }
+  })
+</script>
+</body>
+
+</html>
