@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router();
 const { auth } = require('../middlewares/auth')
 const upload = require('../middlewares/multer')
-const {userSignup, userSignin, userSignout, userForgetPassword, userOtpValidate, userResetPassword, userEditProfile, fetchUserData} = require('../controllers/userControllers')
+const { userSignup, userSignin, userSignout, userForgetPassword, userOtpValidate, userResetPassword, userEditProfile, fetchUserData } = require('../controllers/userControllers')
 
 // sign up
 router.post('/signup', userSignup)
@@ -23,9 +23,9 @@ router.post('/otp-validate', userOtpValidate)
 router.post('/reset-password', userResetPassword)
 
 // user edit profile
-router.post('/edit-profile', upload.single('image'), userEditProfile)
+router.post('/edit-profile', auth, upload.single('image'), userEditProfile)
 
 // fetch user data
-router.post('/get-user-details', fetchUserData)
+router.post('/get-user-details', auth, fetchUserData)
 
 module.exports = router;

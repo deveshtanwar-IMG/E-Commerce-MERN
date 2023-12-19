@@ -6,16 +6,17 @@ import { formValidation } from '../schema/editProfile'
 import axios from 'axios'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { postAPIAuth } from '../services/api'
 
 const EditUser = () => {
-    const email = localStorage.getItem('email')
+    const token = localStorage.getItem('token')
     const [state, setState] = useState('')
     const [image, setImage] = useState(null)
     const [fetchedData, setFetchedData] = useState({})
     let formData = new FormData();
 
     useEffect(() => {
-        axios.post('http://localhost:5001/get-user-details', { email })
+        postAPIAuth('get-user-details', {})
             .then((res) => {
                 setFetchedData(res.data.userDetails)
 
@@ -23,7 +24,7 @@ const EditUser = () => {
                 localStorage.setItem('email', res.data.userDetails.email)
                 localStorage.setItem('image', res.data.userDetails.image)
             })
-    }, [formData])
+    }, [])
 
     let initialValues = {
         name: fetchedData.name || '',
@@ -46,7 +47,13 @@ const EditUser = () => {
             formData.append('address', values.address);
             formData.append('state', state);
             action.resetForm()
-            await axios.post('http://localhost:5001/edit-profile', formData, { headers: { 'Content-Type': 'multipart/form-data' } })
+
+            const headers = {
+                authorization: `Bearer ${token}`,
+                'Content-Type': 'multipart/form-data'
+            }
+            await axios.post('http://localhost:5001/edit-profile', formData, { headers })
+            postAPIAuth('edit-profile', formData)
                 .then((res) => {
                     if (res?.data?.success) {
                         window.scrollTo(0, 0)

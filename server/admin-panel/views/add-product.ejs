@@ -12,260 +12,256 @@
     <!-- jQuery cdn -->
     <script src="https://code.jquery.com/jquery-3.7.1.js"
         integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
-        <link rel="apple-touch-icon" href="/app-assets/images/ico/apple-icon-120.png">
-        <link rel="shortcut icon" type="image/x-icon" href="/app-assets/images/ico/favicon.ico">
-        <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;1,400;1,500;1,600"
-          rel="stylesheet">
-      
-        <!-- BEGIN: Vendor CSS-->
-        <link rel="stylesheet" type="text/css" href="/app-assets/vendors/css/vendors.min.css">
-        <link rel="stylesheet" type="text/css" href="/app-assets/vendors/css/charts/apexcharts.css">
-        <link rel="stylesheet" type="text/css" href="/app-assets/vendors/css/extensions/toastr.min.css">
-        <!-- END: Vendor CSS-->
-      
-        <!-- BEGIN: Theme CSS-->
-        <link rel="stylesheet" type="text/css" href="/app-assets/css/bootstrap-extended.css">
-        <link rel="stylesheet" type="text/css" href="/app-assets/css/colors.css">
-        <link rel="stylesheet" type="text/css" href="/app-assets/css/components.css">
-        <link rel="stylesheet" type="text/css" href="/app-assets/css/themes/dark-layout.css">
-        <link rel="stylesheet" type="text/css" href="/app-assets/css/themes/bordered-layout.css">
-        <link rel="stylesheet" type="text/css" href="/app-assets/css/themes/semi-dark-layout.css">
-      
-        <!-- BEGIN: Page CSS-->
-        <link rel="stylesheet" type="text/css" href="/app-assets/css/core/menu/menu-types/vertical-menu.css">
-        <link rel="stylesheet" type="text/css" href="/app-assets/css/pages/dashboard-ecommerce.css">
-        <link rel="stylesheet" type="text/css" href="/app-assets/css/plugins/charts/chart-apex.css">
-        <link rel="stylesheet" type="text/css" href="/app-assets/css/plugins/extensions/ext-component-toastr.css">
-        <!-- END: Page CSS-->
-      
-        <!-- BEGIN: Custom CSS-->
-        <link rel="stylesheet" type="text/css" href="/assets/css/style.css">
-        <!-- END: Custom CSS-->
-      </head>
-      
-      <body class="vertical-layout vertical-menu-modern  navbar-floating footer-static  " data-open="click"
-        data-menu="vertical-menu-modern" data-col="">
+    <link rel="apple-touch-icon" href="/app-assets/images/ico/apple-icon-120.png">
+    <link rel="shortcut icon" type="image/x-icon" href="/app-assets/images/ico/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;1,400;1,500;1,600"
+        rel="stylesheet">
 
-    <!-- <div style="float: left">
-        <a href="/"><button class="btn btn btn-secondary" style="margin-top: 5px; margin-left: 5px;">Go
-                Back</button></a>
-    </div> -->
-      <!-- BEGIN: Header-->
-  <%- include('partials/header.ejs') %>
-  <!-- BEGIN: Main Menu-->
-  <%- include('partials/sidebar.ejs') %>
-    <div style="position: absolute; top: 100px; left: 50%; transform: translate(-50%); width: 100%;">
-        <h1 class="text-center my-1"> ADD PRODUCT </h1>
-        <div class="container">
-            <form class="mx-auto" style="max-width: 500px" id="product-form" enctype="multipart/form-data"
-                method="post">
-                <div class="mb-3">
-                    <label for="Category" class="form-label">Category</label>
-                    <select class="form-select" aria-label="Default select example" id="Category"
-                        onchange="fetchId(event)" name="category_id">
-                        <option selected>Open this select category</option>
-                    </select>
+    <!-- BEGIN: Vendor CSS-->
+    <link rel="stylesheet" type="text/css" href="/app-assets/vendors/css/vendors.min.css">
+    <link rel="stylesheet" type="text/css" href="/app-assets/vendors/css/charts/apexcharts.css">
+    <link rel="stylesheet" type="text/css" href="/app-assets/vendors/css/extensions/toastr.min.css">
+    <!-- END: Vendor CSS-->
+
+    <!-- BEGIN: Theme CSS-->
+    <link rel="stylesheet" type="text/css" href="/app-assets/css/bootstrap-extended.css">
+    <link rel="stylesheet" type="text/css" href="/app-assets/css/colors.css">
+    <link rel="stylesheet" type="text/css" href="/app-assets/css/components.css">
+    <link rel="stylesheet" type="text/css" href="/app-assets/css/themes/dark-layout.css">
+    <link rel="stylesheet" type="text/css" href="/app-assets/css/themes/bordered-layout.css">
+    <link rel="stylesheet" type="text/css" href="/app-assets/css/themes/semi-dark-layout.css">
+
+    <!-- BEGIN: Page CSS-->
+    <link rel="stylesheet" type="text/css" href="/app-assets/css/core/menu/menu-types/vertical-menu.css">
+    <link rel="stylesheet" type="text/css" href="/app-assets/css/pages/dashboard-ecommerce.css">
+    <link rel="stylesheet" type="text/css" href="/app-assets/css/plugins/charts/chart-apex.css">
+    <link rel="stylesheet" type="text/css" href="/app-assets/css/plugins/extensions/ext-component-toastr.css">
+    <!-- END: Page CSS-->
+
+    <!-- BEGIN: Custom CSS-->
+    <link rel="stylesheet" type="text/css" href="/assets/css/style.css">
+    <!-- END: Custom CSS-->
+</head>
+
+<body class="vertical-layout vertical-menu-modern  navbar-floating footer-static  " data-open="click"
+    data-menu="vertical-menu-modern" data-col="">
+
+    <!-- BEGIN: Header-->
+    <%- include('partials/header.ejs') %>
+        <!-- BEGIN: Main Menu-->
+        <%- include('partials/sidebar.ejs') %>
+            <div style="position: absolute; top: 100px; left: 50%; transform: translate(-50%); width: 100%;">
+                <h1 class="text-center my-1"> ADD PRODUCT </h1>
+                <div class="container">
+                    <form class="mx-auto" style="max-width: 500px" id="product-form" enctype="multipart/form-data"
+                        method="post" action="/add-product">
+                        <div class="mb-3">
+                            <label for="Category" class="form-label">Category</label>
+                            <select class="form-select" aria-label="Default select example" id="Category"
+                                onchange="fetchCategory(event, 'Category')" name="category_id">
+                                <option selected>Open this select category</option>
+                            </select>
+                        </div>
+                        <div id="sub_category"></div>
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Product Title</label>
+                            <input type="text" class="form-control" id="title" name="title" required
+                                onkeyup="validateForm(event)" />
+                            <!-- <span style="color: red;" id="name-error"></span> -->
+                        </div>
+                        <div class="mb-3">
+                            <label for="price" class="form-label">Product Price</label>
+                            <input type="number" class="form-control" id="price" name="price" required
+                                onkeyup="validateForm(event)" />
+                            <!-- <span style="color: red;" id="name-error"></span> -->
+                        </div>
+                        <div class="mb-3">
+                            <label for="desc" class="form-label">Product Description</label>
+                            <textarea class="form-control" id="desc" name="desc" required 
+                                rows="1"></textarea>
+                            <!-- <p style="color: red;" id="email-error"></p> -->
+                        </div>
+                        <div class="mb-3">
+                            <label for="image" class="form-label">Select Image</label>
+                            <input type="file" class="form-control" id="image" name="image"
+                            required   onchange='previewHandler(event)'>
+                        </div>
+                        <div style="width: 300px;">
+                            <button type="submit" class="btn btn-primary" id="add">Submit</button>
+                            <img src="/" id="preview" style="width: 50px; display: none" class="ms-2" />
+                        </div>
+                    </form>
                 </div>
-                <div class="mb-3">
-                    <label for="sub-category" class="form-label">Sub Category</label>
-                    <select class="form-select" aria-label="Default select example" id="sub-category"
-                        onclick="fetchSubCategory(event)" name="sub_category_id">
-                        <option selected>Open this select category</option>
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label for="title" class="form-label">Product Title</label>
-                    <input type="text" class="form-control" id="title" name="title" required
-                        onkeyup="validateForm(event)" />
-                    <!-- <span style="color: red;" id="name-error"></span> -->
-                </div>
-                <div class="mb-3">
-                    <label for="price" class="form-label">Product Price</label>
-                    <input type="number" class="form-control" id="price" name="price" required
-                        onkeyup="validateForm(event)" />
-                    <!-- <span style="color: red;" id="name-error"></span> -->
-                </div>
-                <div class="mb-3">
-                    <label for="desc" class="form-label">Product Description</label>
-                    <textarea class="form-control" id="desc" name="desc" required onkeyup="validateForm(event)"rows="1"></textarea>
-                    <!-- <p style="color: red;" id="email-error"></p> -->
-                </div>
-                <div class="mb-3">
-                    <label for="image" class="form-label">Select Image</label>
-                    <input type="file" class="form-control" id="image" name="image" onchange='previewHandler(event)'>
-                </div>
-                <div style="width: 300px;">
-                    <button type="submit" class="btn btn-primary" id="add">Submit</button>
-                    <img src="/" id="preview" style="width: 50px; display: none" class="ms-2" />
-                </div>
-            </form>
-        </div>
 
-    </div>
+            </div>
 
-    <script>
+            <script>
 
-        // const validateForm = (e) => {
+                const previewHandler = (e) => {
+                    var input = event.target;
+                    var preview = document.getElementById('preview');
 
-        //   const submitButton = document.getElementById('add');
-
-        //   let nameValid = false;
-        //   let emailValid = false;
-        //   let phoneValid = false;
+                    var reader = new FileReader();
+                    reader.onload = function () {
+                        preview.src = reader.result;
+                        preview.style.display = "inline-block";
+                    };
+                    reader.readAsDataURL(input.files[0]);// important line
+                }
 
 
-        //   if (e.target.name == 'name') {
-        //     var regex = /\b([A-ZÀ-ÿ][-,a-z. ']+[ ]*)+/gm
-        //     var text = e.target.value
-        //     const result = regex.test(text)
-        //     if (!result) {
-        //       document.getElementById('name-error').innerHTML = '* 1st letter capital and alphabet only * Atleast 2 character';
-        //     }
-        //     else {
-        //       document.getElementById('name-error').innerHTML = '';
-        //       nameValid = true;
-        //     }
-        //   }
+                $(document).ready(function () {
 
-        //   if (e.target.name == 'email') {
-        //     var regex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g
-        //     var text = e.target.value
-        //     const result = regex.test(text)
-        //     if (!result) {
-        //       document.getElementById('email-error').innerHTML = 'Enter valid email - example@gmail.com'
-        //     }
-        //     else {
-        //       document.getElementById('email-error').innerHTML = '';
-        //       emailValid = true;
-        //     }
-        //   }
+                    load_data();
 
-        //   if (e.target.name == 'phone') {
-        //     var regex = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/g
-        //     var text = e.target.value
-        //     const result = regex.test(text)
-        //     if (!result) {
-        //       document.getElementById('phone-error').innerHTML = 'Enter 10 digit Mobile No. with country code'
-        //     }
-        //     else {
-        //       document.getElementById('phone-error').innerHTML = '';
-        //       phoneValid = true;
-        //     }
-        //   }
-
-        //   if (!nameValid && !emailValid && !phoneValid) {
-        //     submitButton.setAttribute('disabled', 'true')
-        //   }
-        //   else {
-        //     submitButton.removeAttribute('disabled')
-        //   }
-
-        // }
-        const previewHandler = (e) => {
-            var input = event.target;
-            var preview = document.getElementById('preview');
-
-            var reader = new FileReader();
-            reader.onload = function () {
-                preview.src = reader.result;
-                preview.style.display = "inline-block";
-            };
-            reader.readAsDataURL(input.files[0]);// important line
-        }
-
-
-        $(document).ready(function () {
-
-            load_data();
-
-            function load_data() {
-                $.ajax({
-                    url: "/get-category",
-                    method: "GET",
-                    dataType: "JSON",
-                    success: function (data) {
-                        data.forEach((val) => {
-                            console.log(val)
-                            $('#Category').append(
-                                $('<option>', {
-                                    value: val._id,
-                                    text: val.title,
+                    function load_data() {
+                        $.ajax({
+                            url: "/get-category",
+                            method: "POST",
+                            dataType: "JSON",
+                            data: {id : null},
+                            success: function (data) {
+                                data.forEach((val) => {
+                                    $('#Category').append(
+                                        $('<option>', {
+                                            value: val._id,
+                                            text: val.title,
+                                        })
+                                    )
                                 })
-                            )
-                        })
+                            }
+                        });
                     }
                 });
-            }
 
-        });
-
-        const fetchId = (e) => {
-            $('#sub-category').empty();
-            console.log(e.target.value)
-            $.ajax({
-                url: "/get-sub-category",
-                method: "POST",
-                dataType: "JSON",
-                data: { id: e.target.value },
-                success: function (data) {
-                    data.forEach((val) => {
-                        console.log(val)
-                        $('#sub-category').append(
-                            $('<option>', {
-                                value: val._id,
-                                text: val.title,
+                const fetchCategory = (e) => {
+                    console.log(e.target.value)
+                    $.ajax({
+                        url: "/get-category",
+                        method: "POST",
+                        dataType: "JSON",
+                        data: { id: e.target.value },
+                        success: function (data) {
+                            if(data.length > 0){
+                                $(`#sub_category`).empty()
+                                $(`#sub_category`).append(`
+                                    <div class="my-3 category"">
+                                        <label for="sub-category" class="form-label">Sub Category</label>
+                                        <select class="form-select" aria-label="Default select example" id="sub-category-${e.target.value}"
+                                            onclick="fetchCategory(event)" name="sub_category_id">
+                                        </select>
+                                    </div>
+                                `);
+                            }
+                            data.forEach((val) => {
+                                $(`#sub-category-${e.target.value}`).append(
+                                    $('<option>', {
+                                        value: val._id,
+                                        text: val.title,
+                                    })
+                                )
                             })
-                        )
-                    })
+                        }
+                    });
                 }
-            });
-        }
 
-        const fetchSubCategory = (e) => {
-            console.log(e.target.value)
-            const formSubmit = document.getElementById('product-form');
-            formSubmit.setAttribute('action', `/add-product/${e.target.value}`)
-        }
+            </script>
 
-    </script>
+            <div class="sidenav-overlay"></div>
+            <div class="drag-target"></div>
 
-<div class="sidenav-overlay"></div>
-<div class="drag-target"></div>
-
-<button class="btn btn-primary btn-icon scroll-top" type="button"><i data-feather="arrow-up"></i></button>
-<!-- END: Footer-->
+            <button class="btn btn-primary btn-icon scroll-top" type="button"><i data-feather="arrow-up"></i></button>
+            <!-- END: Footer-->
 
 
-<!-- BEGIN: Vendor JS-->
-<script src="/app-assets/vendors/js/vendors.min.js"></script>
-<!-- BEGIN Vendor JS-->
+            <!-- BEGIN: Vendor JS-->
+            <script src="/app-assets/vendors/js/vendors.min.js"></script>
+            <!-- BEGIN Vendor JS-->
 
-<!-- BEGIN: Page Vendor JS-->
-<script src="/app-assets/vendors/js/charts/apexcharts.min.js"></script>
-<script src="/app-assets/vendors/js/extensions/toastr.min.js"></script>
-<!-- END: Page Vendor JS-->
+            <!-- BEGIN: Page Vendor JS-->
+            <!-- <script src="/app-assets/vendors/js/charts/apexcharts.min.js"></script> -->
+            <script src="/app-assets/vendors/js/extensions/toastr.min.js"></script>
+            <!-- END: Page Vendor JS-->
 
-<!-- BEGIN: Theme JS-->
-<script src="/app-assets/js/core/app-menu.js"></script>
-<script src="/app-assets/js/core/app.js"></script>
-<!-- END: Theme JS-->
+            <!-- BEGIN: Theme JS-->
+            <script src="/app-assets/js/core/app-menu.js"></script>
+            <script src="/app-assets/js/core/app.js"></script>
+            <!-- END: Theme JS-->
 
-<!-- BEGIN: Page JS-->
-<script src="/app-assets/js/scripts/pages/dashboard-ecommerce.js"></script>
-<!-- END: Page JS-->
+            <!-- BEGIN: Page JS-->
+            <script src="/app-assets/js/scripts/pages/dashboard-ecommerce.js"></script>
+            <!-- END: Page JS-->
 
-<script>
+            <script>
 
-  $(window).on('load', function () {
-    if (feather) {
-      feather.replace({
-        width: 14,
-        height: 14
-      });
-    }
-  })
-</script>
+                $(window).on('load', function () {
+                    if (feather) {
+                        feather.replace({
+                            width: 14,
+                            height: 14
+                        });
+                    }
+                })
+            </script>
 
 </body>
 
 </html>
+
+<!-- Regex code -->
+<!-- // const validateForm = (e) => {
+
+    //   const submitButton = document.getElementById('add');
+
+    //   let nameValid = false;
+    //   let emailValid = false;
+    //   let phoneValid = false;
+
+
+    //   if (e.target.name == 'name') {
+    //     var regex = /\b([A-ZÀ-ÿ][-,a-z. ']+[ ]*)+/gm
+    //     var text = e.target.value
+    //     const result = regex.test(text)
+    //     if (!result) {
+    //       document.getElementById('name-error').innerHTML = '* 1st letter capital and alphabet only * Atleast 2 character';
+    //     }
+    //     else {
+    //       document.getElementById('name-error').innerHTML = '';
+    //       nameValid = true;
+    //     }
+    //   }
+
+    //   if (e.target.name == 'email') {
+    //     var regex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g
+    //     var text = e.target.value
+    //     const result = regex.test(text)
+    //     if (!result) {
+    //       document.getElementById('email-error').innerHTML = 'Enter valid email - example@gmail.com'
+    //     }
+    //     else {
+    //       document.getElementById('email-error').innerHTML = '';
+    //       emailValid = true;
+    //     }
+    //   }
+
+    //   if (e.target.name == 'phone') {
+    //     var regex = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/g
+    //     var text = e.target.value
+    //     const result = regex.test(text)
+    //     if (!result) {
+    //       document.getElementById('phone-error').innerHTML = 'Enter 10 digit Mobile No. with country code'
+    //     }
+    //     else {
+    //       document.getElementById('phone-error').innerHTML = '';
+    //       phoneValid = true;
+    //     }
+    //   }
+
+    //   if (!nameValid && !emailValid && !phoneValid) {
+    //     submitButton.setAttribute('disabled', 'true')
+    //   }
+    //   else {
+    //     submitButton.removeAttribute('disabled')
+    //   }
+
+    // } -->

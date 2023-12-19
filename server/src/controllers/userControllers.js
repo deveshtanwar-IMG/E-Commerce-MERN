@@ -1,40 +1,45 @@
 const Users = require('../models/users')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
-const nodemailer = require('nodemailer');
 const generateOTP = require('../services/generateOTP');
 const fs = require('fs');
+const nodeMailer = require('../services/nodeMailer');
 
 const secret = process.env.SECRET;
 
 // signup
 exports.userSignup = async (req, res) => {
     try {
-        const userData = await Users.findOne({ email: req.body.email })
-        if (userData) {
-            res.send({
-                "error": " !! Email already used"
+        const existingUser = await Users.findOne({ email: req.body.email }, { email: 1 })
+        if (existingUser) {
+            return res.json({
+                success: false,
+                error: "Email already in use"
             })
         }
         else {
             const hashPassword = await bcrypt.hash(req.body.password, 13)
             req.body.password = hashPassword;
-            const save = await Users.create(req.body)
-            if (save) {
-                res.send({
-                    "success": true,
-                    "message": "Registered successfully !!"
+            const newUser = await Users.create(req.body)
+            if (newUser) {
+                return res.json({
+                    success: true,
+                    message: "Registered successfully !!"
                 })
             }
             else {
-                res.send({
-                    "error": "Failed Please try Again Later !!"
+                return res.json({
+                    success: false,
+                    error: "Failed Please try Again Later !!"
                 })
             }
         }
     } catch (error) {
         console.log(error)
-        throw error
+        res.status(500).json({
+            success: false,
+            error: "Internal Server Error",
+        });
     }
 }
 
@@ -56,11 +61,10 @@ exports.userSignin = async (req, res) => {
                 })
             }
             else {
-                const token = jwt.sign({ email: userExist.email }, secret)
+                const token = jwt.sign({ userID: userExist._id }, secret)
                 await Users.updateOne({ email: userExist.email }, { $set: { token: token } })
                 delete userExist._doc.password;
                 // above line is used to delete pw from userExist before sending to client
-
                 res.send({
                     "success": true,
                     "message": "Login successfully !!",
@@ -71,20 +75,24 @@ exports.userSignin = async (req, res) => {
         }
     } catch (error) {
         console.log(error)
-        throw error
+        res.status(500).json({
+            success: false,
+            error: "Internal Server Error",
+        });
     }
 }
-
 
 // signout
 exports.userSignout = async (req, res) => {
     try {
-        const user_id = req.headers['user_id'];
-        await Users.updateOne({ _id: user_id }, { $set: { token: '' } })
+        await Users.updateOne({ _id: req.userId }, { $set: { token: '' } })
         res.send('logout successfull')
     } catch (error) {
         console.log(error)
-        throw error
+        res.status(500).json({
+            success: false,
+            error: "Internal Server Error",
+        });
     }
 }
 
@@ -102,61 +110,38 @@ exports.userForgetPassword = async (req, res) => {
             const otp = generateOTP
             console.log(otp)
             await Users.updateOne({ email: userExist.email }, { $set: { otp: otp } })
-            // nodemailer code starts here
-            let transporter = nodemailer.createTransport({
-                service: 'gmail',
-                auth: {
-                    user: 'deveshtanwar.img@gmail.com',
-                    pass: process.env.PASS
-                }
-            });
-
-            let mailOptions = {
-                from: 'deveshtanwar.img@gmail.com',
-                to: 'neuroglial07@gmail.com',
-                subject: 'Ecommerece reset password otp',
-                text: `your otp for Ecommerece reset password is : ${otp}`
-            };
-
-            transporter.sendMail(mailOptions, function (error, info) {
-                if (error) {
-                    console.log(error);
-                    res.send({ "success": false, "message": error })
-                } else {
-                    res.send({
-                        "success": true,
-                        "message": "OTP sent to your Email!!"
-                    })
-                }
-            });
+            nodeMailer(otp, res)
         }
     } catch (error) {
         console.log(error)
-        throw error
+        res.status(500).json({
+            success: false,
+            error: "Internal Server Error",
+        });
     }
 }
-
 
 // otp validate
 exports.userOtpValidate = async (req, res) => {
     try {
-        const checkOTP = await Users.findOne({ email: req.body.email })
-        if (checkOTP.otp === req.body.otp) {
-            await Users.updateOne({ email: req.body.email }, { $set: { otp: '' } })
-            res.send({
-                "success": true,
-                "message": 'otp validated'
-            })
-        }
-        else {
-            res.send({
+        const checkOTP = await Users.findOne({ email: req.body.email, otp: req.body.otp })
+        if (!checkOTP) {
+            return res.send({
                 "success": false,
-                "message": 'Enter Correct OTP'
+                "message": 'Invalid OTP'
             })
-        }
+        };
+        await Users.findByIdAndUpdate({ _id: checkOTP._id }, { otp: '' })
+        return res.send({
+            "success": true,
+            "message": 'otp validated'
+        });
     } catch (error) {
         console.log(error)
-        throw error
+        res.status(500).json({
+            success: false,
+            error: "Internal Server Error",
+        });
     }
 }
 
@@ -166,20 +151,23 @@ exports.userResetPassword = async (req, res) => {
         const hashPassword = await bcrypt.hash(req.body.password, 13)
         const userUpdated = await Users.updateOne({ email: req.body.email }, { $set: { password: hashPassword } })
         if (userUpdated) {
-            res.send({
+            return res.send({
                 "success": true,
                 "message": "password updated successfully"
             })
         }
         else {
-            res.send({
+            return res.send({
                 "success": false,
                 "message": "Error changing password !! Retry again"
             })
         }
     } catch (error) {
         console.log(error)
-        throw error
+        res.status(500).json({
+            success: false,
+            error: "Internal Server Error",
+        });
     }
 }
 
@@ -187,12 +175,8 @@ exports.userResetPassword = async (req, res) => {
 exports.userEditProfile = async (req, res) => {
     try {
         if (!req.file) {
-            const userData = await Users.find({email: req.body.email})
-            const user = {
-                ...req.body,
-                image: userData.image
-            }
-            await Users.updateOne({ email: req.body.email }, user)
+            delete req.body.image
+            await Users.updateOne({ _id: req.userId }, req.body)
                 .then(() => {
                     res.send({
                         "success": true,
@@ -211,8 +195,8 @@ exports.userEditProfile = async (req, res) => {
                 ...req.body,
                 image: req.file.filename
             }
-            const userDbData = await Users.findOne({email: req.body.email})
-            if(userDbData.image){
+            const userDbData = await Users.findOne({ _id: req.userId })
+            if (userDbData.image) {
                 fs.unlink('./public/uploads/' + `${userDbData.image}`, (err) => {
                     if (err) {
                         throw err;
@@ -220,7 +204,7 @@ exports.userEditProfile = async (req, res) => {
                     console.log("Delete File successfully.");
                 });
             }
-            await Users.updateOne({ email: req.body.email }, userData)
+            await Users.updateOne({ _id: req.userId }, userData)
                 .then(() => {
                     res.send({
                         "success": true,
@@ -236,27 +220,26 @@ exports.userEditProfile = async (req, res) => {
         }
     } catch (error) {
         console.log(error)
-        throw error
+        res.status(500).json({
+            success: false,
+            error: "Internal Server Error",
+        });
     }
 }
-
 
 // fetch user data
 exports.fetchUserData = async (req, res) => {
     try {
-        const userData = await Users.findOne({email: req.body.email})
-        if(userData){
-            delete userData._doc.password;
-            delete userData._doc.token;
-            delete userData._doc.otp;
-
-            res.send({
-                "success": true,
-                "userDetails": userData
-            })
-        }
+        const userData = await Users.findOne({ _id: req.userId }, { password: 0, token: 0, otp: 0 })
+        res.send({
+            "success": true,
+            "userDetails": userData
+        })
     } catch (error) {
         console.log(error)
-        throw error
+        res.status(500).json({
+            success: false,
+            error: "Internal Server Error",
+        });
     }
 }

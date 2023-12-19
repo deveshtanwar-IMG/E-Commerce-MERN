@@ -1,29 +1,39 @@
 import { useDispatch, useSelector } from "react-redux";
-import { addItem, removeItem} from "../redux/slices/cartSlice";
-import axios from "axios";
+import { addItem, removeItem } from "../redux/slices/cartSlice";
+import { postAPIAuth } from "../services/api";
 
 const Card = (props) => {
     const { title, price, image, desc, _id } = props.data;
     const dispatch = useDispatch()
     const data = useSelector(state => state.cart)
-    const isItemInCart = data.items.find(item => item._id === _id)
-    const userId = localStorage.getItem('userId')
+
+    const isItemInCart = data.items.find(item => item.product_id == _id)
+
     const addToCart = (payload) => {
         const cartData = {
             ...payload,
-            quantity: 1
+            quantity: 1,
+            product_id : payload._id
         }
+        delete cartData._id;
         dispatch(addItem(cartData))
-        axios.post('http://localhost:5001/set-cart-data', {
+
+        // api call
+        postAPIAuth('set-cart-data', {
             ...cartData,
-            userId: userId,
-            quantity: isItemInCart ? isItemInCart.quantity+1 : 1
+            quantity: isItemInCart ? isItemInCart.quantity + 1 : 1
         })
     }
 
     const removeFromCart = (payload) => {
-        dispatch(removeItem(payload))
-        axios.post('http://localhost:5001/remove-cart-data', {...payload, quantity: isItemInCart.quantity - 1})
+        const cartData = {
+            ...payload,
+            product_id : payload._id
+        }
+        delete cartData._id;
+        dispatch(removeItem(cartData))
+        // api call
+        postAPIAuth('remove-cart-data', { ...cartData, quantity: isItemInCart.quantity - 1 })
     }
 
     return (

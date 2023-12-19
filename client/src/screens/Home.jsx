@@ -11,7 +11,10 @@ import Image_07 from '/src/assets/images/element/07.png'
 import Counter from "../components/Counter";
 import Card from "../components/Card";
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { getAPI } from "../services/api";
+
+// css import
+import '../App.css'
 
 const Home = () => {
 
@@ -19,28 +22,33 @@ const Home = () => {
   const [subCategories, setSubCategories] = useState(null)
   const [products, setProducts] = useState([])
 
+  // pagination states
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(4);
+  const [pageCount, setPageCount] = useState('')
+
+
   useEffect(() => {
-    axios.get('http://localhost:5001/get-category')
+    getAPI('get-category')
       .then((res) => {
         if (res?.data?.success) {
           setCategories(res.data.categories)
         }
       })
-  }, [])
 
-  useEffect(() => {
-    axios.get('http://localhost:5001/get-all-product')
+    getAPI(`get-all-product?page=${page}&pageSize=${pageSize}`)
       .then((res) => {
         if (res?.data?.success) {
-          setProducts(res.data.products)
+          setProducts(res.data.products.result)
+          setPageCount(res.data.products.pageCount)
         }
       })
     setSubCategories([])
-  }, [])
+  }, [page, pageSize])
 
   const categoryHandler = (category_id) => {
     setProducts([])
-    axios.get(`http://localhost:5001/get-sub-category/${category_id}`)
+    getAPI(`get-sub-category/${category_id}`)
       .then((res) => {
         if (res?.data?.success) {
           setSubCategories(res.data.SubCategories)
@@ -49,7 +57,7 @@ const Home = () => {
   }
 
   const productHandler = (subCategory_id) => {
-    axios.get(`http://localhost:5001/get-product/${subCategory_id}`)
+    getAPI(`get-product/${subCategory_id}`)
       .then((res) => {
         if (res?.data?.success) {
           setProducts(res.data.products)
@@ -58,13 +66,37 @@ const Home = () => {
   }
 
   const allHandler = () => {
-    axios.get('http://localhost:5001/get-all-product')
+    getAPI(`get-all-product?page=${page}&pageSize=${pageSize}`)
       .then((res) => {
         if (res?.data?.success) {
-          setProducts(res.data.products)
+          setProducts(res.data.products.result)
         }
       })
     setSubCategories([])
+  }
+
+
+  // pagination code 
+
+
+  const prevHandler = () => {
+    if (page > 1) {
+      setPage((prev) => prev - 1);
+    }
+  }
+
+  const nextHandler = () => {
+    if( page < pageCount){
+      setPage((prev) => prev + 1);
+    }
+  }
+
+  const selectHandler = (val) => {
+    setPageSize(val)
+  }
+
+  const pageHandler = (val) => {
+    setPage(val)
   }
 
   return (
@@ -365,7 +397,7 @@ const Home = () => {
           {/* <!-- Category END --> */}
 
           {/* <!-- Sub Category START --> */}
-          { subCategories && subCategories.length > 0 ?
+          {subCategories && subCategories.length > 0 ?
             <ul className="nav nav-pills nav-pills-bg-soft justify-content-sm-center mb-4 px-3" id="course-pills-tab" role="tablist">
               {/* <!-- Tab item --> */}
               {subCategories.map((val) => {
@@ -389,11 +421,28 @@ const Home = () => {
           <div className="row g-4">
             {
               products.map((val, index) => {
-                return (<Card data={val} key={val._id} index={index}/>)
+                return (<Card data={val} key={val._id} index={index} />)
               })
             }
           </div>
         </div>
+      </div>
+
+      <div className='pagination'>
+        <button className='page-btn' onClick={prevHandler}>prev</button>
+        <p className='pages' onClick={() => { pageHandler(1) }}>1</p>
+        <p>...</p>
+        <p>{page}</p>
+        <p>...</p>
+        <p className='pages' onClick={() => { pageHandler(pageCount) }} >{pageCount}</p>
+        <button className='page-btn' onClick={nextHandler}>next</button>
+      </div>
+      <div className='page-size'>
+        <label htmlFor='pageSize'>page size</label>
+        <select id='pageSize' onChange={(e) => { selectHandler(e.target.value) }}>
+          <option value={4}>4</option>
+          <option value={8}>8</option>
+        </select>
       </div>
       <Footer />
     </>

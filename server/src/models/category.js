@@ -1,6 +1,12 @@
 const mongoose = require('mongoose');
 
 const categorySchema = new mongoose.Schema({
+    parent_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Category',
+        required: false,
+        default: null
+    },
     title: {
         type: String,
         required: true

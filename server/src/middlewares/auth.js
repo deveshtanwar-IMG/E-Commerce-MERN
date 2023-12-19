@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const secret = process.env.SECRET;
 
 exports.auth = (req, res, next) => {
-    const bearer = req.headers['authorisation'];
+    const bearer = req.headers['authorization'];
     const token = bearer.split(' ')[1]
     if(token){
         jwt.verify(token, secret, (err, authData) => {
@@ -13,6 +13,7 @@ exports.auth = (req, res, next) => {
                 })
             }
             else{
+                req.userId = authData.userID
                 next();
             }
         })

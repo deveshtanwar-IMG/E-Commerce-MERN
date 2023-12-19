@@ -14,7 +14,7 @@ const cartSlice = createSlice({
             state.totalCount = action.payload.length;
         },
         addItem(state, action) {
-            let find = state?.items?.findIndex((item) => item._id === action.payload._id)
+            let find = state?.items?.findIndex((item) => item.product_id === action.payload.product_id)
             if (find >= 0) {
                 state.items[find].quantity += 1;
             }
@@ -24,22 +24,21 @@ const cartSlice = createSlice({
             // totalCount evaluate
             state.totalCount = state.items.length;
         },
-        removeItem(state, action) {
-            let find = state?.items?.findIndex((item) => item._id === action.payload._id)
+        removeItem(state, action){
+            let find = state?.items?.findIndex((item) => item.product_id === action.payload.product_id)
             if (state.items[find].quantity > 1) {
                 state.items[find].quantity -= 1;
             }
             else {
-                state.items = state.items.filter(item => item._id !== action.payload._id);
+                state.items = state.items.filter((item) => item.product_id !== action.payload.product_id);
                 state.totalCount = state.items.length
             }
 
         },
         deleteItemFromCart(state, action) {
-            state.items = state.items.filter(item => item._id !== action.payload._id);
+            state.items = state.items.filter((item) => item.product_id !== action.payload.product_id);
             state.totalCount = state.items.length
-        }
-        ,
+        },
         clearCart(state) {
             state.items= [],
             state.totalCount = 0

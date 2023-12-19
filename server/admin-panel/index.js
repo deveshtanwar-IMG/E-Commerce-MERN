@@ -3,8 +3,8 @@ require('dotenv').config();
 const routes = require('./routes/routes');
 require('./config/db_connect');
 const cookieParser = require('cookie-parser');
-const session = require('express-session')
-const flash = require('connect-flash')
+// const session = require('express-session')
+// const flash = require('connect-flash')
 
 
 const app = express();
@@ -18,12 +18,12 @@ app.set('view engine', 'ejs')
 app.use(express.urlencoded({extended: true}))
 app.use(express.json())
 app.use(cookieParser())
-app.use(session({ 
-    secret:'geeksforgeeks', 
-    saveUninitialized: true, 
-    resave: true
-}));
-app.use(flash()); 
+// app.use(session({ 
+//     secret:'geeksforgeeks', 
+//     saveUninitialized: true, 
+//     resave: true
+// }));
+// app.use(flash()); 
 
 // routes
 app.use(routes)

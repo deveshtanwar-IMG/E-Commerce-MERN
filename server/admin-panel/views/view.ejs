@@ -47,7 +47,7 @@
   <!-- BEGIN: Main Menu-->
   <%- include('partials/sidebar.ejs') %>
     <div style="position: absolute; top: 100px; left: 50%; transform: translate(-50%); width: 100%;">
-        <h1 class="text-center"> <%= parentTitle%> Sub Category</h1>
+        <h1 class="text-center"> <%= parentTitle%></h1>
         <div class="container">
             <div>
                 <a href="/add-category/<%=parent_id%>"><button class="btn btn-sm btn-primary">Add + </button></a>
@@ -88,6 +88,24 @@
                                         <img src="/<%=val.image%>" width="50px"/>
                                     </td>
                                     <td>
+                                        <% if (productWithNestedData && productWithNestedData.length > 0) { %>
+                                            <% if (productWithNestedData.includes(val.id)) { %>
+                                                <!-- Render view button -->
+                                                <a href="/view/<%=val._id%>">
+                                                    <button class="btn btn-sm btn-primary mx-1">View</button>
+                                                </a>
+                                            <% } else { %>
+                                                <!-- Render + button -->
+                                                <a href="/add-category/<%=val._id%>">
+                                                    <button class="btn btn-sm btn-primary">+</button>
+                                                </a>
+                                            <% } %>
+                                        <% } else { %>
+                                            <!-- Render + button -->
+                                            <a href="/add-category/<%=val._id%>">
+                                                <button class="btn btn-sm btn-primary">+</button>
+                                            </a>
+                                        <% } %>
                                         <a href="/edit-category/<%=val._id%>">
                                             <button class="btn btn-sm btn-secondary">Edit</button>
                                         </a>

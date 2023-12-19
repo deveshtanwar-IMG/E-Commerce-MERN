@@ -1,12 +1,10 @@
 import logo from '../assets/images/logo.svg'
 import darkLogo from '../assets/images/logo-light.svg'
 import { Link, useNavigate } from 'react-router-dom'
-import axios from 'axios'
 import { useDispatch, useSelector } from 'react-redux'
 import { useEffect } from 'react'
 import { setCartData } from '../redux/slices/cartSlice'
-
-const userId = localStorage.getItem('userId')
+import { postAPIAuth } from '../services/api'
 
 const Header = () => {
 
@@ -20,7 +18,7 @@ const Header = () => {
     const data = useSelector(state => state.cart)
 
     useEffect(() => {
-        axios.post('http://localhost:5001/fetch-cart-data', { userId })
+        postAPIAuth('fetch-cart-data')
         .then((res)=>{
             if (res.data.success) {
                 const cartData = res.data.cartData;
@@ -31,13 +29,7 @@ const Header = () => {
 
     const signoutHandler = async () => {
         try {
-            const token = localStorage.getItem('token')
-            const user_id = localStorage.getItem('userId')
-            const headers = {
-                user_id: user_id,
-                authorisation: `Bearer ${token}`
-            }
-            await axios.post(`http://localhost:5001/logout`, {}, { headers })
+            await postAPIAuth('logout', {})
             localStorage.setItem('isAuthenticated', false)
             localStorage.setItem('token', '')
 

@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
-import axios from "axios";
+// import axios from "axios";
+import { getAPI } from "../services/api";
 
 const Orders = () => {
 
@@ -9,11 +10,12 @@ const Orders = () => {
     const [orders, setOrders] = useState()
 
     useEffect(() => {
-        axios.post('http://localhost:5001/get-orders', { userId })
-            .then((res) => {
-                setOrders(res.data.orders)
-            })
-    })
+        // axios.post('http://localhost:5001/get-orders', { userId })
+        getAPI('get-orders')
+        .then((res) => {
+            setOrders(res.data.orders)
+        })
+    },[])
     return (
         <>
 
@@ -49,7 +51,6 @@ const Orders = () => {
                                                 <th scope="col" className="border-0">Order ID</th>
                                                 <th scope="col" className="border-0">Date</th>
                                                 <th scope="col" className="border-0">Amount</th>
-                                                <th scope="col" className="border-0 rounded-end">Payment Id</th>
                                             </tr>
                                         </thead>
 
@@ -75,8 +76,6 @@ const Orders = () => {
                                                         {/* <!-- Table data --> */}
                                                         <td>Rs {val.amount}</td>
 
-                                                        {/* <!-- Table data --> */}
-                                                        <td>{val.payment_id}</td>
                                                     </tr>
                                                 )
                                             })}

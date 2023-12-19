@@ -7,17 +7,22 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { auth, rootAuth } = require('../middleware/Auth')
 const upload = require('../middleware/multer')
-const multer = require('multer')
 const fs = require('fs');
-const SubCategory = require('../models/sub-category');
-// const flash = require('connect-flash')
 
 const secret = process.env.TOKEN_SECRET;
 
 // ******************************** Authentication *****************************************
 
 router.get('/register', (req, res) => {
-    res.render('register');
+    try {
+        res.render('register');
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({
+            success: false,
+            error: "Internal Server Error",
+        });
+    }
 })
 
 // register
@@ -32,14 +37,25 @@ router.post('/register', async (req, res) => {
         res.redirect('/')
     }
     catch (error) {
-        console.log(error);
-        throw error;
+        console.log(error)
+        res.status(500).json({
+            success: false,
+            error: "Internal Server Error",
+        });
     }
 })
 
 //access login page
 router.get('/', rootAuth, (req, res) => {
-    res.render('login', { message: '' });
+    try {
+        res.render('login', { message: '' });
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({
+            success: false,
+            error: "Internal Server Error",
+        });
+    }
 })
 
 //login
@@ -62,90 +78,95 @@ router.post('/', async (req, res) => {
                 res.render('login', { message: "credential do not match" });
             }
             else {
-                if (userExist.token == '') {
-                    const token = jwt.sign({ id: userExist.id }, secret)
-                    res.cookie('userToken', token, { httpOnly: true, secure: true });
-                    await Admin.updateOne({ _id: userExist.id }, { $set: { token: token } })
-                    res.redirect(`/home/${userExist.id}`)
-                }
-                res.render('login', { message: "Already login in another device!! please logout first" })
+                const token = jwt.sign({ id: userExist.id }, secret)
+                res.cookie('userToken', token, { httpOnly: true, secure: true });
+                await Admin.updateOne({ _id: userExist.id }, { $set: { token: token } })
+                res.redirect(`/home`)
             }
         }
     }
     catch (error) {
         console.log(error)
-        throw error;
+        res.status(500).json({
+            success: false,
+            error: "Internal Server Error",
+        });
     }
 })
 
-router.get('/logout', async (req, res) => {
+router.get('/logout', auth, async (req, res) => {
     try {
         const token = req.cookies.userToken;
         await Admin.updateOne({ token: token }, { $set: { token: "" } })
         res.clearCookie('userToken');
         res.redirect('/')
     } catch (error) {
-        throw error
+        console.log(error)
+        res.status(500).json({
+            success: false,
+            error: "Internal Server Error",
+        });
     }
 })
 
 // ************************************category ***********************************
 
-router.get('/home/:id', auth, async (req, res) => {
+router.get('/home', auth, async (req, res) => {
     try {
-        const { id } = req.params;
+        const id = req.userId
         const userData = await Admin.findById({ _id: id });
-        const productData = await Category.find()
+        const categoryData = await Category.find({ parent_id: null })
         const productWithNestedData = [];
 
         // Check nested data for each product
-        for (const product of productData) {
-            const isNestedData = await SubCategory.find({ category_id: product.id });
+        for (const x of categoryData) {
+            const isNestedData = await Category.find({ parent_id: x._id });
             if (isNestedData.length > 0) {
-                productWithNestedData.push(product.id);
+                productWithNestedData.push(x.id)
             }
         }
-        res.render('home', { data: userData, product: productData, productWithNestedData, message: req.flash('message') });
+        res.render('home', { data: userData, product: categoryData, productWithNestedData, message: '' });
     } catch (error) {
-        throw error
+        console.log(error)
+        res.status(500).json({
+            success: false,
+            error: "Internal Server Error",
+        });
     }
 })
 
 router.get('/add', auth, (req, res) => {
     try {
-        res.render('add', { submit: '/add', title: "Add Category", data: '' })
+        res.render('add', { submit: '/add', title: "Add Category", data: '' });
     } catch (error) {
-        throw error
+        console.log(error)
+        res.status(500).json({
+            success: false,
+            error: "Internal Server Error",
+        });
     }
 })
 
-router.post('/add', async (req, res) => {
+router.post('/add', upload, auth, async (req, res) => {
     try {
-        upload(req, res, async function (err) {
-            if (err instanceof multer.MulterError) {
-                // A Multer error occurred when uploading.
-                res.render('add', { duplicate: 'File size exceded, max 1mb allowed', title: "Add Category", data: '' })
-            } else if (err) {
-                // An unknown error occurred when uploading.
-                res.render('add', { duplicate: 'File format should jpeg/jpg/png only', title: "Add Category", data: '' })
+        if (!req.file) {
+            await Category.create(req.body)
+            res.redirect('/')
+        }
+        else {
+            const category = {
+                ...req.body,
+                image: req.file.filename
             }
-            else {
-                if (!req.file) {
-                    await Category.create(req.body)
-                    res.redirect('/')
-                }
-                else {
-                    const product = {
-                        ...req.body,
-                        image: req.file.filename
-                    }
-                    await Category.create(product);
-                    res.redirect('/')
-                }
-            }
-        })
+            await Category.create(category);
+            res.redirect('/')
+        }
     } catch (error) {
-        throw error
+        console.log(error)
+        res.status(500).json({
+            success: false,
+            error: "Internal Server Error",
+        });
     }
 })
 
@@ -155,66 +176,60 @@ router.get('/edit/:id', auth, async (req, res) => {
         const productData = await Category.findById({ _id: id })
         res.render('edit', { data: productData, submit: `/edit/${id}`, title: "Edit Category" })
     } catch (error) {
-        throw error
+        console.log(error)
+        res.status(500).json({
+            success: false,
+            error: "Internal Server Error",
+        });
     }
 })
 
-router.post('/edit/:id', async (req, res) => {
+router.post('/edit/:id', upload, auth, async (req, res) => {
     try {
         const { id } = req.params;
         const getDataById = await Category.findById({ _id: id })
-        upload(req, res, async function (err) {
-            if (err instanceof multer.MulterError) {
-                // A Multer error occurred when uploading.
-                res.render('edit', { duplicate: 'File size exceded, max 1mb allowed', data: getDataById, title: "Edit Category" })
-            } else if (err) {
-                // An unknown error occurred when uploading.
-                res.render('edit', { duplicate: 'File format should be jpeg/jpg/png only', data: getDataById, title: "Edit Category" })
+        const { image } = getDataById
+        // Everything went fine.
+        if (!req.file) {
+            const productData = {
+                ...req.body,
+                image: image
             }
-            else {
-                const { image } = getDataById
-                // Everything went fine.
-                if (!req.file) {
-                    const productData = {
-                        ...req.body,
-                        image: image
+            await Category.findByIdAndUpdate({ _id: id }, productData)
+            res.redirect('/')
+        }
+        else {
+            if (image !== '628px-Ethereum_logo_2014 2.png') {
+                fs.unlink('./public/uploads/' + `${image}`, (err) => {
+                    if (err) {
+                        throw err;
                     }
-                    await Category.findByIdAndUpdate({ _id: id }, productData)
-                    res.redirect('/')
-                }
-                else {
-                    if (image !== '628px-Ethereum_logo_2014 2.png') {
-                        fs.unlink('./public/uploads/' + `${image}`, (err) => {
-                            if (err) {
-                                throw err;
-                            }
-                            console.log("Delete File successfully.");
-                        });
-                    }
-                    const editedProduct = {
-                        ...req.body,
-                        image: req.file.filename
-                    }
-                    await Category.findByIdAndUpdate({ _id: id }, editedProduct)
-                    res.redirect('/')
-                }
+                    console.log("Delete File successfully.");
+                });
             }
-        })
+            const editedProduct = {
+                ...req.body,
+                image: req.file.filename
+            }
+            await Category.findByIdAndUpdate({ _id: id }, editedProduct)
+            res.redirect('/')
+        }
     } catch (error) {
-        throw error
+        console.log(error)
+        res.status(500).json({
+            success: false,
+            error: "Internal Server Error",
+        });
     }
 })
 
-router.get('/delete/:id', async (req, res) => {
+router.get('/delete/:id', auth, async (req, res) => {
     try {
         const { id } = req.params;
-        const isNestedData = await SubCategory.find({ category_id: id });
+        const isNestedData = await Category.find({ parent_id: id });
         if (isNestedData.length > 0) {
-            // res.redirect('/', { message: 'Delete child categories first' });
-            req.flash('message', 'Delete child categories first');
-            res.redirect('/');
+            res.render('error', { error: 'Delete child categories first' });
             console.log("delete child category first")
-
         }
         else {
             const deleteData = await Category.findByIdAndDelete({ _id: id })
@@ -229,67 +244,58 @@ router.get('/delete/:id', async (req, res) => {
             return res.redirect('/')
         }
     } catch (error) {
-        console.log(error);
-        throw error;
+        console.log(error)
+        res.status(500).json({
+            success: false,
+            error: "Internal Server Error",
+        });
     }
 })
 
 // ************************** sub category ************************************
 
 router.get('/add-category/:id', auth, (req, res) => {
-    const { id } = req.params;
-    res.render('add', { submit: `/add-category/${id}`, title: "Add Sub Category", data: '' })
-})
-
-
-router.post('/add-category/:id', (req, res) => {
-    const { id } = req.params;
-    upload(req, res, async function (err) {
-        if (err instanceof multer.MulterError) {
-            // A Multer error occurred when uploading.
-            res.render('add', { duplicate: 'File size exceded, max 1mb allowed', title: "Add Sub Category" })
-        } else if (err) {
-            // An unknown error occurred when uploading.
-            res.render('add', { duplicate: 'File format should jpeg/jpg/png only', title: "Add Sub Category" })
-        }
-        else {
-            if (!req.file) {
-                const data = {
-                    category_id: id,
-                    ...req.body,
-                }
-                await SubCategory.create(data)
-                res.redirect('/')
-            }
-            else {
-                const data = {
-                    category_id: id,
-                    ...req.body,
-                    image: req.file.filename
-                }
-                await SubCategory.create(data);
-                res.redirect('/')
-            }
-        }
-    })
-})
-
+    try {
+        const { id } = req.params;
+        res.render('add', { submit: `/add-category/${id}`, title: "Add Sub Category", data: '' })
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({
+            success: false,
+            error: "Internal Server Error",
+        });
+    }
+});
 
 router.get('/view/:id', auth, async (req, res) => {
     try {
         const { id } = req.params;
-        const parentData = await Category.findById({ _id: id })
-        const subCategoryData = await SubCategory.find({ category_id: id });
-        res.render('view', { parentTitle: parentData.title, parent_id: id, product: subCategoryData, data: '' })
-    } catch (error) {
-        throw error
-    }
-})
+        const categoryData = await Category.find({ parent_id: id })
+        const productWithNestedData = [];
 
-router.get('/delete-category/:id', async (req, res) => {
+        // Check nested data for each product
+        for (const x of categoryData) {
+            const isNestedData = await Category.find({ parent_id: x._id });
+            if (isNestedData.length > 0) {
+                productWithNestedData.push(x.id);
+            }
+        }
+        const parentData = await Category.findById({ _id: id })
+        const subCategoryData = await Category.find({ parent_id: id });
+        res.render('view', { parentTitle: parentData.title, parent_id: id, product: subCategoryData, productWithNestedData, data: '' })
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({
+            success: false,
+            error: "Internal Server Error",
+        });
+    }
+});
+
+router.get('/delete-category/:id', auth, async (req, res) => {
     try {
         const { id } = req.params;
-        const deleteData = await SubCategory.findByIdAndDelete({ _id: id })
+        const deleteData = await Category.findByIdAndDelete({ _id: id })
         if (deleteData.image !== '628px-Ethereum_logo_2014 2.png') {
             fs.unlink('./public/uploads/' + `${deleteData.image}`, (err) => {
                 if (err) {
@@ -298,191 +304,286 @@ router.get('/delete-category/:id', async (req, res) => {
                 console.log("Delete File successfully.");
             });
         }
-        return res.redirect('/')
+        res.redirect(`/`)
     } catch (error) {
-        console.log(error);
-        throw error;
+        console.log(error)
+        res.status(500).json({
+            success: false,
+            error: "Internal Server Error",
+        });
     }
 })
 
-router.get('/edit-category/:id', async (req, res) => {
-    const { id } = req.params;
-    const editData = await SubCategory.findById({ _id: id })
-    res.render('edit', { data: editData, submit: `/edit-category/${id}`, title: "Edit Sub Category" })
-})
-
-router.post('/edit-category/:id', async (req, res) => {
+router.get('/edit-category/:id', auth, async (req, res) => {
     try {
         const { id } = req.params;
-        const getDataById = await SubCategory.findById({ _id: id })
-        upload(req, res, async function (err) {
-            if (err instanceof multer.MulterError) {
-                // A Multer error occurred when uploading.
-                res.render('edit', { duplicate: 'File size exceded, max 1mb allowed', data: getDataById, title: "Edit Sub Category" })
-            } else if (err) {
-                // An unknown error occurred when uploading.
-                res.render('edit', { duplicate: 'File format should be jpeg/jpg/png only', data: getDataById, title: "Edit Sub Category" })
-            }
-            else {
-                const { image } = getDataById
-                // Everything went fine.
-                if (!req.file) {
-                    const productData = {
-                        ...req.body,
-                        image: image
-                    }
-                    await SubCategory.findByIdAndUpdate({ _id: id }, productData)
-                    res.redirect('/')
-                }
-                else {
-                    if (image !== '628px-Ethereum_logo_2014 2.png') {
-                        fs.unlink('./public/uploads/' + `${image}`, (err) => {
-                            if (err) {
-                                throw err;
-                            }
-                            console.log("Delete File successfully.");
-                        });
-                    }
-                    const editedProduct = {
-                        ...req.body,
-                        image: req.file.filename
-                    }
-                    await SubCategory.findByIdAndUpdate({ _id: id }, editedProduct)
-                    res.redirect('/')
-                }
-            }
-        })
+        const editData = await Category.findById({ _id: id })
+        res.render('edit', { data: editData, submit: `/edit-category/${id}`, title: "Edit Sub Category" })
     } catch (error) {
-        throw error
+        console.log(error)
+        res.status(500).json({
+            success: false,
+            error: "Internal Server Error",
+        });
     }
 })
+
+router.post('/edit-category/:id', auth, upload, async (req, res) => {
+    try {
+        const { id } = req.params;
+        console.log('edit-category id', id)
+        const getDataById = await Category.findById({ _id: id })
+        const { image } = getDataById
+        // Everything went fine.
+        if (!req.file) {
+            const productData = {
+                ...req.body,
+                image: image
+            }
+            await Category.findByIdAndUpdate({ _id: id }, productData)
+            res.redirect('/')
+        }
+        else {
+            if (image !== '628px-Ethereum_logo_2014 2.png') {
+                fs.unlink('./public/uploads/' + `${image}`, (err) => {
+                    if (err) {
+                        throw err;
+                    }
+                    console.log("Delete File successfully.");
+                });
+            }
+            const editedProduct = {
+                ...req.body,
+                image: req.file.filename
+            }
+            await Category.findByIdAndUpdate({ _id: id }, editedProduct)
+            res.redirect('/')
+        }
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({
+            success: false,
+            error: "Internal Server Error",
+        });
+    }
+})
+
+
+router.post('/add-category/:id', upload, auth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        if (!req.file) {
+            const data = {
+                parent_id: id,
+                ...req.body,
+            }
+            await Category.create(data)
+            res.redirect(`/view/${id}`)
+        }
+        else {
+            const data = {
+                parent_id: id,
+                ...req.body,
+                image: req.file.filename
+            }
+            await Category.create(data);
+            res.redirect(`/view/${id}`)
+        }
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({
+            success: false,
+            error: "Internal Server Error",
+        });
+    }
+})
+
 
 // **************************** product   **********************************
 
 // add product pages 
 
 router.get('/add-product', auth, (req, res) => {
-    res.render('add-product', {data: ""})
+    try {
+        res.render('add-product', { data: "" })
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({
+            success: false,
+            error: "Internal Server Error",
+        });
+    }
 })
 
-router.get('/get-category', async (req, res) => {
+router.post('/get-category', auth, async (req, res) => {
     try {
-        const category = await Category.find();
+        const category = await Category.find({parent_id : req.body.id == '' ? null : req.body.id});
         res.json(category);
     } catch (error) {
-        console.error(error);
-        res.status(500).send('Internal Server Error');
+        console.log(error)
+        res.status(500).json({
+            success: false,
+            error: "Internal Server Error",
+        });
     }
 })
 
-router.post('/get-sub-category', async (req, res) => {
+router.post('/add-product', auth, upload, async (req, res) => {
     try {
-        const subCategory = await SubCategory.find({ category_id: req.body.id });
-        res.json(subCategory);
+        const product = {
+            ...req.body,
+            image: req.file.filename
+        }
+        await Products.create(product)
+        res.redirect('/')
     } catch (error) {
-        console.error(error);
-        res.status(500).send('Internal Server Error');
-    }
-})
-
-router.post('/add-product/:id', async (req, res) => {
-    try {
-        upload(req, res, async function (err) {
-            if (err instanceof multer.MulterError) {
-                // A Multer error occurred when uploading.
-                // res.render('add-product', { duplicate: 'File size exceded, max 1mb allowed'})
-            } else if (err) {
-                // An unknown error occurred when uploading.
-                // res.render('add-product', { duplicate: 'File format should be jpeg/jpg/png only'})
-            }
-            else {
-                const user = {
-                    ...req.body,
-                    image: req.file.filename
-                }
-                await Products.create(user)
-                res.redirect('/')
-            }
-        })
-    } catch (error) {
-        throw error
+        console.log(error)
+        res.status(500).json({
+            success: false,
+            error: "Internal Server Error",
+        });
     }
 })
 
 // view product pages
 
 router.get('/view-product', auth, (req, res) => {
-    res.render('view-product', { product: '', data: '' });
+    try {
+        res.render('view-product', { product: '', data: '' });
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({
+            success: false,
+            error: "Internal Server Error",
+        });
+    }
 })
 
-router.post('/get-product', async (req, res) => {
+router.post('/get-product', auth, async (req, res) => {
     try {
         const products = await Products.find({ sub_category_id: req.body.id });
         res.json(products);
     } catch (error) {
-        console.error(error);
-        res.status(500).send('Internal Server Error');
+        console.log(error)
+        res.status(500).json({
+            success: false,
+            error: "Internal Server Error",
+        });
+    }
+})
+
+router.get('/all-products', auth, async (req, res) => {
+    try {
+        const products = await Products.find()
+        res.json(products)
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({
+            success: false,
+            error: "Internal Server Error",
+        });
     }
 })
 
 router.get('/edit-product/:id', auth, async (req, res) => {
-    const { id } = req.params
-    const productData = await Products.findById({ _id: id })
-    const categoryData = await Category.findById({ _id: productData.category_id })
-    const subCategoryData = await SubCategory.findById({ _id: productData.sub_category_id })
-    res.render('edit-product', { data: productData, category: categoryData.title, subCategory: subCategoryData.title });
-})
-
-router.post('/edit-product/:id', async (req, res) => {
     try {
         const { id } = req.params
-        const productData = await Products.findById({_id: id})
-        upload(req, res, async function (err) {
-            if (err instanceof multer.MulterError) {
-                // A Multer error occurred when uploading.
-                // res.render('edit-product', { duplicate: 'File size exceded, max 1mb allowed'})
-            } else if (err) {
-                // An unknown error occurred when uploading.
-                // res.render('edit-product', { duplicate: 'File format should be jpeg/jpg/png only'})
-            }
-            else {
-                const { image } = productData
-                // Everything went fine.
-                if (!req.file) {
-                    const productData = {
-                        ...req.body,
-                        image: image
-                    }
-                    await Products.findByIdAndUpdate({ _id: id }, productData)
-                    res.redirect('/')
-                }
-                else {
-                    if (image !== '628px-Ethereum_logo_2014 2.png') {
-                        fs.unlink('./public/uploads/' + `${image}`, (err) => {
-                            if (err) {
-                                throw err;
-                            }
-                            console.log("Delete File successfully.");
-                        });
-                    }
-                    const editedProduct = {
-                        ...req.body,
-                        image: req.file.filename
-                    }
-                    await Products.findByIdAndUpdate({ _id: id }, editedProduct)
-                    res.redirect('/')
-                }
-            }
-        })
+
+        // Find the product by ID
+        const productData = await Products.findById(id);
+
+        // Check if the product is not found
+        if (!productData) {
+            return res.status(404).json({
+                success: false,
+                error: "Product not found",
+            });
+        }
+
+        // Find the category by ID
+        const categoryData = await Category.findById(productData.category_id);
+
+        // Check if the category is not found
+        if (!categoryData) {
+            return res.status(404).json({
+                success: false,
+                error: "Category not found",
+            });
+        }
+
+        // Find the subcategory by ID
+        const subCategoryData = await Category.findById(productData.sub_category_id);
+
+        // Check if the subcategory is not found
+        if (!subCategoryData) {
+            return res.status(404).json({
+                success: false,
+                error: "Subcategory not found",
+            });
+        }
+
+        res.render('edit-product', { data: productData, category: categoryData.title, subCategory: subCategoryData.title });
     } catch (error) {
-        throw error
+        console.log(error)
+        res.status(500).json({
+            success: false,
+            error: "Internal Server Error",
+        });
+    }
+})
+
+router.post('/edit-product/:id', auth, upload, async (req, res) => {
+    try {
+        const { id } = req.params
+        const productData = await Products.findById({ _id: id })
+
+        const { image } = productData
+        // Everything went fine.
+        if (!req.file) {
+            const productData = {
+                ...req.body,
+                image: image
+            }
+            await Products.findByIdAndUpdate({ _id: id }, productData)
+            res.redirect('/')
+        }
+        else {
+            if (image !== '628px-Ethereum_logo_2014 2.png') {
+                fs.unlink('./public/uploads/' + `${image}`, (err) => {
+                    if (err) {
+                        throw err;
+                    }
+                    console.log("Delete File successfully.");
+                });
+            }
+            const editedProduct = {
+                ...req.body,
+                image: req.file.filename
+            }
+            await Products.findByIdAndUpdate({ _id: id }, editedProduct)
+            res.redirect('/')
+        }
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({
+            success: false,
+            error: "Internal Server Error",
+        });
     }
 })
 
 router.get('/delete-product/:id', auth, async (req, res) => {
-    const {id} = req.params;
-    await Products.findByIdAndDelete({_id: id})
-    res.redirect('/')
+    try {
+        const { id } = req.params;
+        await Products.findByIdAndDelete({ _id: id })
+        res.redirect('/')
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({
+            success: false,
+            error: "Internal Server Error",
+        });
+    }
 })
 
 module.exports = router;

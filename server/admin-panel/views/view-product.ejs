@@ -10,169 +10,147 @@
     <!-- jQuery cdn -->
     <script src="https://code.jquery.com/jquery-3.7.1.js"
         integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
-        <link rel="apple-touch-icon" href="/app-assets/images/ico/apple-icon-120.png">
-        <link rel="shortcut icon" type="image/x-icon" href="/app-assets/images/ico/favicon.ico">
-        <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;1,400;1,500;1,600"
-          rel="stylesheet">
-      
-        <!-- BEGIN: Vendor CSS-->
-        <link rel="stylesheet" type="text/css" href="/app-assets/vendors/css/vendors.min.css">
-        <link rel="stylesheet" type="text/css" href="/app-assets/vendors/css/charts/apexcharts.css">
-        <link rel="stylesheet" type="text/css" href="/app-assets/vendors/css/extensions/toastr.min.css">
-        <!-- END: Vendor CSS-->
-      
-        <!-- BEGIN: Theme CSS-->
-        <link rel="stylesheet" type="text/css" href="/app-assets/css/bootstrap-extended.css">
-        <link rel="stylesheet" type="text/css" href="/app-assets/css/colors.css">
-        <link rel="stylesheet" type="text/css" href="/app-assets/css/components.css">
-        <link rel="stylesheet" type="text/css" href="/app-assets/css/themes/dark-layout.css">
-        <link rel="stylesheet" type="text/css" href="/app-assets/css/themes/bordered-layout.css">
-        <link rel="stylesheet" type="text/css" href="/app-assets/css/themes/semi-dark-layout.css">
-      
-        <!-- BEGIN: Page CSS-->
-        <link rel="stylesheet" type="text/css" href="/app-assets/css/core/menu/menu-types/vertical-menu.css">
-        <link rel="stylesheet" type="text/css" href="/app-assets/css/pages/dashboard-ecommerce.css">
-        <link rel="stylesheet" type="text/css" href="/app-assets/css/plugins/charts/chart-apex.css">
-        <link rel="stylesheet" type="text/css" href="/app-assets/css/plugins/extensions/ext-component-toastr.css">
-        <!-- END: Page CSS-->
-      
-        <!-- BEGIN: Custom CSS-->
-        <link rel="stylesheet" type="text/css" href="/assets/css/style.css">
-        <!-- END: Custom CSS-->
-      </head>
-      
-      <body class="vertical-layout vertical-menu-modern  navbar-floating footer-static  " data-open="click"
-        data-menu="vertical-menu-modern" data-col="">
+    <link rel="apple-touch-icon" href="/app-assets/images/ico/apple-icon-120.png">
+    <link rel="shortcut icon" type="image/x-icon" href="/app-assets/images/ico/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;1,400;1,500;1,600"
+        rel="stylesheet">
+
+    <!-- BEGIN: Vendor CSS-->
+    <link rel="stylesheet" type="text/css" href="/app-assets/vendors/css/vendors.min.css">
+    <link rel="stylesheet" type="text/css" href="/app-assets/vendors/css/charts/apexcharts.css">
+    <link rel="stylesheet" type="text/css" href="/app-assets/vendors/css/extensions/toastr.min.css">
+    <!-- END: Vendor CSS-->
+
+    <!-- BEGIN: Theme CSS-->
+    <link rel="stylesheet" type="text/css" href="/app-assets/css/bootstrap-extended.css">
+    <link rel="stylesheet" type="text/css" href="/app-assets/css/colors.css">
+    <link rel="stylesheet" type="text/css" href="/app-assets/css/components.css">
+    <link rel="stylesheet" type="text/css" href="/app-assets/css/themes/dark-layout.css">
+    <link rel="stylesheet" type="text/css" href="/app-assets/css/themes/bordered-layout.css">
+    <link rel="stylesheet" type="text/css" href="/app-assets/css/themes/semi-dark-layout.css">
+
+    <!-- BEGIN: Page CSS-->
+    <link rel="stylesheet" type="text/css" href="/app-assets/css/core/menu/menu-types/vertical-menu.css">
+    <link rel="stylesheet" type="text/css" href="/app-assets/css/pages/dashboard-ecommerce.css">
+    <link rel="stylesheet" type="text/css" href="/app-assets/css/plugins/charts/chart-apex.css">
+    <link rel="stylesheet" type="text/css" href="/app-assets/css/plugins/extensions/ext-component-toastr.css">
+    <!-- END: Page CSS-->
+
+    <!-- BEGIN: Custom CSS-->
+    <link rel="stylesheet" type="text/css" href="/assets/css/style.css">
+    <!-- END: Custom CSS-->
+</head>
+
+<body class="vertical-layout vertical-menu-modern  navbar-floating footer-static  " data-open="click"
+    data-menu="vertical-menu-modern" data-col="">
     <!-- <div>
         <a href="/"><button class="btn btn btn-secondary" style="margin-top: 5px; margin-left: 5px;">Go
                 Back</button></a>
     </div> -->
-          <!-- BEGIN: Header-->
-  <%- include('partials/header.ejs') %>
-  <!-- BEGIN: Main Menu-->
-  <%- include('partials/sidebar.ejs') %>
-    <div style="position: absolute; top: 100px; left: 50%; transform: translate(-50%); width: 100%;">
-        <h1 class="text-center"> Products list </h1>
-        <div class="container">
+    <!-- BEGIN: Header-->
+    <%- include('partials/header.ejs') %>
+        <!-- BEGIN: Main Menu-->
+        <%- include('partials/sidebar.ejs') %>
+            <div style="position: absolute; top: 100px; left: 50%; transform: translate(-50%); width: 100%;">
+                <h1 class="text-center"> Products list </h1>
+                <div class="container">
 
-            <select class="form-select" aria-label="Default select example" id="Category" onchange="fetchSubCategory(event)">
-                <option selected>Select category</option>
-            </select>
-            <br />
-            <select class="form-select" aria-label="Default select example" id="sub-category" onclick="fetchData(event)">
-                <option selected>Select sub category</option>
-            </select>
-            <p><% product %></p>
-            <table class="table mx-2" style="margin-top: 50px;">
-                <thead>
-                    <tr>
-                        <th scope="col">Product Title</th>
-                        <th scope="col">Product description</th>
-                        <th scope="col">Product Price</th>
-                        <th scope="col">Image</th>
-                        <th scope="col">Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="table-body">
-                    <% if(!product){ %>
-                        <tr>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-                        <% }else{ %>
-                            <% product.forEach((val, index)=>{ %>
+                    <select class="form-select" aria-label="Default select example" id="Category"
+                        onchange="fetchSubCategory(event)">
+                        <option selected>Select category</option>
+                    </select>
+                    <br />
+                    <select class="form-select" aria-label="Default select example" id="sub-category"
+                        onchange="fetchSubCategory(event), fetchData(event)">
+                        <option selected>Select sub category</option>
+                    </select>
+                    <p>
+                        <% product %>
+                    </p>
+                    <table class="table mx-2" style="margin-top: 50px;">
+                        <thead>
+                            <tr>
+                                <th scope="col">Product Title</th>
+                                <th scope="col">Product description</th>
+                                <th scope="col">Product Price</th>
+                                <th scope="col">Image</th>
+                                <th scope="col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body">
+                            <% if(!product){ %>
                                 <tr>
-                                    <td>
-                                        <%= val.title %>
-                                    </td>
-                                    <td>
-                                        <%= val.desc %>
-                                    </td>
-                                    <td>
-                                        <%= val.price %>
-                                    </td>
-                                    <td>
-                                        <img src="/<%=val.image%>" width="50px" />
-                                    </td>
-                                    <td>
-                                        <a href="/edit-category/<%=val._id%>">
-                                            <button class="btn btn-sm btn-secondary">Edit</button>
-                                        </a>
-                                        <a href="/delete-category/<%=val._id%>">
-                                            <button class="btn btn-sm btn-danger mx-1"> Delete</button>
-                                        </a>
-                                    </td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
                                 </tr>
-                            <%})%>
-                        <%}%>
-                </tbody>
-            </table>
-        </div>
-    </div>
+                                <% }else{ %>
+                                    <% product.forEach((val, index)=>{ %>
+                                        <tr>
+                                            <td>
+                                                <%= val.title %>
+                                            </td>
+                                            <td>
+                                                <%= val.desc %>
+                                            </td>
+                                            <td>
+                                                <%= val.price %>
+                                            </td>
+                                            <td>
+                                                <img src="/<%=val.image%>" width="50px" />
+                                            </td>
+                                            <td>
+                                                <a href="/edit-category/<%=val._id%>">
+                                                    <button class="btn btn-sm btn-secondary">Edit</button>
+                                                </a>
+                                                <a href="/delete-category/<%=val._id%>">
+                                                    <button class="btn btn-sm btn-danger mx-1"> Delete</button>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        <%})%>
+                                            <%}%>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
-    <script>
-        $(document).ready(function () {
-            load_data();
-            function load_data() {
-                $.ajax({
-                    url: "/get-category",
-                    method: "GET",
-                    dataType: "JSON",
-                    success: function (data) {
-                        data.forEach((val) => {
-                            $('#Category').append(
-                                $('<option>', {
-                                    value: val._id,
-                                    text: val.title,
+            <script>
+                $(document).ready(function () {
+
+                    load_data();
+
+                    function load_data() {
+                        $.ajax({
+                            url: "/get-category",
+                            method: "POST",
+                            dataType: "JSON",
+                            data: { id: null },
+                            success: function (data) {
+                                data.forEach((val) => {
+                                    $('#Category').append(
+                                        $('<option>', {
+                                            value: val._id,
+                                            text: val.title,
+                                        })
+                                    )
                                 })
-                            )
-                        })
-                    }
-                });
-            }
+                            }
+                        });
 
-        });
-
-        const fetchSubCategory= (e) => {
-            $('#sub-category').empty();
-            console.log(e.target.value)
-            $.ajax({
-                url: "/get-sub-category",
-                method: "POST",
-                dataType: "JSON",
-                data: { id: e.target.value },
-                success: function (data) {
-                    data.forEach((val) => {
-                        console.log(val)
-                        $('#sub-category').append(
-                            $('<option>', {
-                                value: val._id,
-                                text: val.title,
-                            })
-                        )
-                    })
-                }
-            });
-        }
-
-        const fetchData = (e) => {
-            console.log(e.target.value)
-            $('#table-body').empty();
-            $.ajax({
-                url: "/get-product",
-                method: "POST",
-                dataType: "JSON",
-                data: {id: e.target.value},
-                success: function (data) {
-                    console.log(data)
-                    data.forEach((val) => {
-                        $('#table-body').append(
-                                $(`<tr>
+                        $.ajax({
+                        url: '/all-products',
+                        method: "GET",
+                        dataType: "JSON",
+                        success: function (data) {
+                            console.log(data)
+                            data.forEach((val) => {
+                                $('#table-body').append(
+                                    $(`<tr>
                                     <td>${val.title}</td>
-                                    <td>${val.desc}</td>
+                                    <td>${val.desc.slice(0,60)}</td>
                                     <td>${val.price}</td>
                                     <td><img src="${val.image}" width="50px" /></td>
                                     <td>
@@ -184,50 +162,108 @@
                                         </a>
                                     </td>
                                 </tr>`
+                                    )
                                 )
-                            )
-                    })
+                            })
+                        }
+                    });
+                    }
+                });
+
+                const fetchSubCategory = (e) => {
+                    $.ajax({
+                        url: "/get-category",
+                        method: "POST",
+                        dataType: "JSON",
+                        data: { id: e.target.value },
+                        success: function (data) {
+                            if(data.length > 0){
+                                $('#sub-category').empty();
+                                $('#sub-category').append(
+                                    `<option selected>Select sub category</option>`
+                                )
+                            }
+                            data.forEach((val) => {
+                                $('#sub-category').append(
+                                    $('<option>', {
+                                        value: val._id,
+                                        text: val.title,
+                                    })
+                                )
+                            })
+                        }
+                    });
                 }
-            });
-        }
-    </script>
 
-<div class="sidenav-overlay"></div>
-<div class="drag-target"></div>
+                const fetchData = (e) => {
+                    $('#table-body').empty();
+                    $.ajax({
+                        url: "/get-product",
+                        method: "POST",
+                        dataType: "JSON",
+                        data: { id: e.target.value },
+                        success: function (data) {
+                            console.log(data)
+                            data.forEach((val) => {
+                                $('#table-body').append(
+                                    $(`<tr>
+                                    <td>${val.title}</td>
+                                    <td>${val.desc.slice(0,60)}</td>
+                                    <td>${val.price}</td>
+                                    <td><img src="${val.image}" width="50px" /></td>
+                                    <td>
+                                        <a href="/edit-product/${val._id}">
+                                            <button class="btn btn-sm btn-secondary">Edit</button>
+                                        </a>
+                                        <a href="/delete-product/${val._id}">
+                                            <button class="btn btn-sm btn-danger">Delete</button>
+                                        </a>
+                                    </td>
+                                </tr>`
+                                    )
+                                )
+                            })
+                        }
+                    });
+                }
+            </script>
 
-<button class="btn btn-primary btn-icon scroll-top" type="button"><i data-feather="arrow-up"></i></button>
-<!-- END: Footer-->
+            <div class="sidenav-overlay"></div>
+            <div class="drag-target"></div>
+
+            <button class="btn btn-primary btn-icon scroll-top" type="button"><i data-feather="arrow-up"></i></button>
+            <!-- END: Footer-->
 
 
-<!-- BEGIN: Vendor JS-->
-<script src="/app-assets/vendors/js/vendors.min.js"></script>
-<!-- BEGIN Vendor JS-->
+            <!-- BEGIN: Vendor JS-->
+            <script src="/app-assets/vendors/js/vendors.min.js"></script>
+            <!-- BEGIN Vendor JS-->
 
-<!-- BEGIN: Page Vendor JS-->
-<script src="/app-assets/vendors/js/charts/apexcharts.min.js"></script>
-<script src="/app-assets/vendors/js/extensions/toastr.min.js"></script>
-<!-- END: Page Vendor JS-->
+            <!-- BEGIN: Page Vendor JS-->
+            <!-- <script src="/app-assets/vendors/js/charts/apexcharts.min.js"></script> -->
+            <script src="/app-assets/vendors/js/extensions/toastr.min.js"></script>
+            <!-- END: Page Vendor JS-->
 
-<!-- BEGIN: Theme JS-->
-<script src="/app-assets/js/core/app-menu.js"></script>
-<script src="/app-assets/js/core/app.js"></script>
-<!-- END: Theme JS-->
+            <!-- BEGIN: Theme JS-->
+            <script src="/app-assets/js/core/app-menu.js"></script>
+            <script src="/app-assets/js/core/app.js"></script>
+            <!-- END: Theme JS-->
 
-<!-- BEGIN: Page JS-->
-<script src="/app-assets/js/scripts/pages/dashboard-ecommerce.js"></script>
-<!-- END: Page JS-->
+            <!-- BEGIN: Page JS-->
+            <script src="/app-assets/js/scripts/pages/dashboard-ecommerce.js"></script>
+            <!-- END: Page JS-->
 
-<script>
+            <script>
 
-  $(window).on('load', function () {
-    if (feather) {
-      feather.replace({
-        width: 14,
-        height: 14
-      });
-    }
-  })
-</script>
+                $(window).on('load', function () {
+                    if (feather) {
+                        feather.replace({
+                            width: 14,
+                            height: 14
+                        });
+                    }
+                })
+            </script>
 </body>
 
 </html>

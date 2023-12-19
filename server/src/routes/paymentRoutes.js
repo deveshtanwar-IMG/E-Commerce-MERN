@@ -3,20 +3,29 @@ const router = express.Router()
 const Razorpay = require('razorpay');
 const crypto = require('crypto')
 const Orders = require('../models/order')
+const { auth } = require('../middlewares/auth')
 
-// create order api
-router.post('/shipping-details', async (req, res) => {
-    const orderBody = {
-        ...req.body,
-        order_id: req.body.data.paymentDetails.orderId,
-        payment_id: req.body.data.paymentDetails.paymentId,
-        amount: req.body.orderData.amount / 100
+// orders api
+router.post('/shipping-details', auth, async (req, res) => {
+    try {
+        const orderBody = {
+            ...req.body,
+            order_id: req.body.data.paymentDetails.orderId,
+            payment_id: req.body.data.paymentDetails.paymentId,
+            amount: req.body.orderData.amount / 100
+        }
+        await Orders.create(orderBody)
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({
+            success: false,
+            error: "Internal Server Error",
+        });
     }
-    await Orders.create(orderBody)
-})
+});
 
 // generate order id
-router.post('/generate-order-id', async (req, res) => {
+router.post('/generate-order-id', auth, async (req, res) => {
     try {
         const instance = new Razorpay({
             key_id: process.env.RAZORPAY_API_KEY,
@@ -36,13 +45,16 @@ router.post('/generate-order-id', async (req, res) => {
             res.status(200).json({ data: order });
         })
     } catch (error) {
-        console.log(error);
-        res.status(500).json({ message: "Internal Server Error!" });
+        console.log(error)
+        res.status(500).json({
+            success: false,
+            error: "Internal Server Error",
+        });
     }
 })
 
 // verify payment
-router.post('/verify-payment', (req, res) => {
+router.post('/verify-payment', auth, (req, res) => {
     try {
         const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
         const signatureData = `${razorpay_order_id}|${razorpay_payment_id}`;
@@ -64,29 +76,42 @@ router.post('/verify-payment', (req, res) => {
             });
         }
     } catch (error) {
-        console.log(error);
-        res.status(500).json({ message: "Internal Server Error!" });
+        console.log(error)
+        res.status(500).json({
+            success: false,
+            error: "Internal Server Error",
+        });
     }
 })
 
-// get razorpay key api
-router.get('/get-key', (req, res) => {
-    res.send({
-        "key": process.env.RAZORPAY_API_KEY
-    })
-})
-
-//get orders api
-
-router.post('/get-orders', async (req, res) => {
-
+// get razorpay key api                      
+router.get('/get-key', auth, (req, res) => {
     try {
-        const orders = await Orders.find({ userId: req.body.userId })
         res.send({
-            orders : orders
+            "key": process.env.RAZORPAY_API_KEY
         })
     } catch (error) {
-        res.status(500).json({message: "Internal server error"})
+        console.log(error)
+        res.status(500).json({
+            success: false,
+            error: "Internal Server Error",
+        });
+    }
+})
+
+//get orders api                                    
+router.get('/get-orders', auth, async (req, res) => {
+    try {
+        const orders = await Orders.find({ userId: req.userId }, {payment_id : 0})
+        res.send({
+            orders: orders
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({
+            success: false,
+            error: "Internal Server Error",
+        });
     }
 })
 

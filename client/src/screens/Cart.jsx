@@ -5,7 +5,7 @@ import emptyCart from '../assets/images/element/cart.svg'
 import { useDispatch, useSelector } from 'react-redux'
 import { addItem, deleteItemFromCart, removeItem} from '../redux/slices/cartSlice'
 import { Link } from 'react-router-dom'
-import axios from 'axios'
+import { postAPIAuth } from '../services/api'
 
 const Cart = () => {
 
@@ -13,30 +13,39 @@ const Cart = () => {
     const [initialAmount, setInitialAmount] = useState(0)
     const discount = 4000;
     const dispatch = useDispatch()
-    const userId = localStorage.getItem('userId')
 
     const addToCart = (payload) => {
         const cartData = {
             ...payload,
-            quantity: 1
+            quantity: 1,
+            product_id : payload.product_id
         }
+        delete cartData._id;
         dispatch(addItem(cartData))
-        axios.post('http://localhost:5001/set-cart-data', {
+        postAPIAuth('set-cart-data', {
             ...cartData,
-            userId: userId,
             quantity: payload.quantity+1
         })
     }
 
     const removeFromCart = (payload) => {
-        dispatch(removeItem(payload))
-        axios.post('http://localhost:5001/remove-cart-data', {...payload, quantity: payload.quantity - 1})
-
+        const cartData = {
+            ...payload,
+            product_id : payload.product_id
+        }
+        delete cartData._id;
+        dispatch(removeItem(cartData))
+        postAPIAuth('remove-cart-data', {...cartData, quantity: payload.quantity - 1})
     }
 
     const deleteFromCart = (payload) => {
-        dispatch(deleteItemFromCart(payload))
-        axios.post('http://localhost:5001/delete-from-cart', payload)
+        const cartData = {
+            ...payload,
+            product_id : payload.product_id
+        }
+        delete cartData._id;
+        dispatch(deleteItemFromCart(cartData))
+        postAPIAuth('delete-from-cart', cartData)
     }
     
     useEffect(()=>{

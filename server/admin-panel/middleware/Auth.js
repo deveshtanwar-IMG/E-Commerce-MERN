@@ -10,6 +10,7 @@ exports.auth = (req, res, next) => {
                     result: "Invalid Token"
                 })
             } else {
+                req.userId = authData.id
                 next();
             }
         })
@@ -29,7 +30,7 @@ exports.rootAuth = (req, res, next) => {
                     result: "Invalid Token"
                 })
             } else {
-                res.redirect(`/home/${id}`)
+                res.redirect(`/home`)
             }
         })
     } else {

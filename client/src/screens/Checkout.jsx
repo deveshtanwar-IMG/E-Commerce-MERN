@@ -4,9 +4,9 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useEffect, useState } from 'react'
 import { clearCart, deleteItemFromCart } from '../redux/slices/cartSlice'
 import { Link, useNavigate } from 'react-router-dom'
-import axios from 'axios'
 import { useFormik } from 'formik'
 import { formValidation } from '../schema/order'
+import { getAPI, postAPIAuth } from '../services/api'
 
 const Checkout = () => {
 
@@ -50,15 +50,18 @@ const Checkout = () => {
     }, [data])
 
     const deleteFromCart = (payload) => {
-        dispatch(deleteItemFromCart(payload))
-        axios.post('http://localhost:5001/delete-from-cart', payload)
+        const cartData = {
+            ...payload,
+            product_id : payload.product_id
+        }
+        delete cartData._id;
+        dispatch(deleteItemFromCart(cartData))
+        postAPIAuth('delete-from-cart', cartData)
     }
 
     const paymentHandler = async () => {
-        const { data } = await axios.post('http://localhost:5001/generate-order-id', {
-            amount: initialAmount - discount
-        })
-        const RAZORPAY_KEY = await axios.get('http://localhost:5001/get-key')
+        const { data } = await postAPIAuth('generate-order-id', {amount: initialAmount - discount})
+        const RAZORPAY_KEY = await getAPI('get-key')
         setKey(RAZORPAY_KEY.data.key)
         initPay(data.data)
     }
@@ -74,11 +77,10 @@ const Checkout = () => {
             order_id: orderData.id,
             handler: async (response) => {
                 try {
-                    const verifyURL = "http://localhost:5001/verify-payment";
-                    const { data } = await axios.post(verifyURL, response);
+                    const { data } = await postAPIAuth('verify-payment', response)
                     if (data.success) {
-                        axios.post("http://localhost:5001/empty-cart", { userId })
-                        axios.post("http://localhost:5001/shipping-details", { ...formData, data, userId, orderData})
+                        postAPIAuth('empty-cart', {})
+                        postAPIAuth('shipping-details', { ...formData, data, userId, orderData})
                         navigation('/orders')
                         dispatch(clearCart())
                     }
